@@ -193,6 +193,21 @@ def add_customized_model(cursor, mid, bmid):
     except mysql.connector.Error as e:
         print("Fail")
 
+def countCustomizedModel(bmodels,cursor):
+    # Adds variable amount of base model IDs for the SQL
+    placeholders = ", ".join(["%s"] * len(bmodels))
+    sql = f"""
+        SELECT bmid, COUNT(*) AS num_customized
+        FROM CustomizedModel
+        WHERE bmid IN ({placeholders})
+        GROUP BY bmid
+        ORDER BY bmid ASC;
+    """
+    cursor.execute(sql, bmodels)
+    rows = cursor.fetchall()
+    for (bmid, count) in rows:
+        print(f"{bmid}: {count}")
+
 def findTopLongestDuration(cursor, client_uid, n: int):
     cursor.execute(
         f"SELECT c.cid, c.uid, c.label, c.content, u.duration"
