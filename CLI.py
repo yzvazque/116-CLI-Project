@@ -1,8 +1,9 @@
 import mysql.connector
 import csv
 import os
+import sys
 
-def import_data(cursor, mydb):
+def import_data(cursor, mydb,folder_name):
     # Drop and create database
     cursor.execute("DROP DATABASE IF EXISTS cs122a_hw2")
     cursor.execute("CREATE DATABASE cs122a_hw2")
@@ -128,7 +129,7 @@ def import_data(cursor, mydb):
 
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    folder_path = os.path.join(script_dir, "test_data_project_122a")
+    folder_path = os.path.join(script_dir, folder_name)
     #needs to be in an order
     #can't just read sequentially from folder
     file_read("User.csv",folder_path,cursor)
@@ -142,7 +143,7 @@ def import_data(cursor, mydb):
     file_read("DataStorage.csv",folder_path,cursor)
     file_read("ModelServices.csv",folder_path,cursor)
     file_read("ModelConfigurations.csv",folder_path,cursor)
-    mydb.commit
+    mydb.commit()
 
 def file_read(file_name,folder_path,cursor):
     file_path = os.path.join(folder_path, file_name)
@@ -164,24 +165,21 @@ def file_read(file_name,folder_path,cursor):
 
 def main():
     mydb = mysql.connector.connect(
+        
         host="host",
         user="user",
         password="password",
-        database="cs122a"
+        database="cs122a_hw2"
     )
 
     cursor = mydb.cursor()
 
-    import_data(cursor, mydb)
+    #CLI interface
+    #put your function and needed arguments in here
+    if(sys.argv[1]=="import"):
+       import_data(cursor,mydb,sys.argv[2])
+ 
 
-    table_name = "BaseModel"  # or whatever table you want
-
-    cursor.execute(f"SELECT * FROM `{table_name}`")  # backticks are safe
-    rows = cursor.fetchall()
-
-    print(f"Data in table '{table_name}':")
-    for row in rows:
-        print(row)
 
     cursor.close()
     mydb.close()
