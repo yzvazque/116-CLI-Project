@@ -201,7 +201,20 @@ def delete_base_model(mydb, cursor, bmid):
         print("Success")
     except mysql.connector.Error as e:
         print("Fail")
-        
+
+def findTopLongestDuration(cursor, client_uid, n: int):
+    cursor.execute(
+        f"SELECT c.cid, c.uid, c.label, c.content, u.duration"
+        f"FROM Configuration c, ModelConfigurations u"
+        f"WHERE c.uid = {client_uid} AND (SELECT u.duration"
+                                        f"FROM ModelConfigurations u"
+                                        f"ORDER BY u.duration DSC"
+                                        f"LIMIT {n};)")
+    
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row)
+
 def listBaseModelKeyWord(cursor,keyword):
     key = f"%{keyword}%"
     cursor.execute(
@@ -252,6 +265,10 @@ def main():
     elif sys.argv[1] == "deleteBaseModel":
         bmid = int(sys.argv[2])
         delete_base_model(mydb, cursor, bmid)
+    elif sys.argv[1] == "topNDurationConfig":
+        client_uid = int(sys.argv[2])
+        n = int(sys.argv[3])
+        findTopLongestDuration(client_uid, n)
     elif(sys.argv[1]=="listBaseModelKeyWord"):
         listBaseModelKeyWord(cursor,sys.argv[2])
  
