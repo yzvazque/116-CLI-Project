@@ -160,7 +160,7 @@ def file_read(file_name,folder_path,cursor):
             row = [val.strip() for val in row]  # remove extra whitespace
             cursor.execute(sql, row)  # insert row
 
-def insert_agent_client(cursor, uid, username, email, cardno, carholder, expire, zip_code, interests):
+def insert_agent_client(cursor, uid, username, email, cardno, cardholder, expire, zip_code, interests):
     try:
         # Insert into User table
         cursor.execute(
@@ -176,7 +176,7 @@ def insert_agent_client(cursor, uid, username, email, cardno, carholder, expire,
             """,
             (uid, interests, cardholder, expire, cardno, cvv, zip)
         )
-        cursor,connection.commit()
+        cursor.connection.commit()
         print("Success")
     
     except mysql.connector.Error as e:
@@ -192,6 +192,21 @@ def add_customized_model(cursor, mid, bmid):
         print("Success")
     except mysql.connector.Error as e:
         print("Fail")
+
+def countCustomizedModel(bmodels,cursor):
+    # Adds variable amount of base model IDs for the SQL
+    placeholders = ", ".join(["%s"] * len(bmodels))
+    sql = f"""
+        SELECT bmid, COUNT(*) AS num_customized
+        FROM CustomizedModel
+        WHERE bmid IN ({placeholders})
+        GROUP BY bmid
+        ORDER BY bmid ASC;
+    """
+    cursor.execute(sql, bmodels)
+    rows = cursor.fetchall()
+    for (bmid, count) in rows:
+        print(f"{bmid}: {count}")
 
 def listBaseModelKeyWord(cursor,keyword):
     key = f"%{keyword}%"
@@ -240,6 +255,10 @@ def main():
         mid = int(sys.argv[2])
         bmid = int(sys.argv[3])
         add_customized_model(cursor, mid, bmid)
+    elif sys.argv[1] == "countCustomizedModel":
+        input_bmids = sys.argv[2:]
+        unique_bmids = sorted({int(x) for x in input_bmids})
+        countCustomizedModel(unique_bmids,cursor)
     elif(sys.argv[1]=="listBaseModelKeyWord"):
         listBaseModelKeyWord(cursor,sys.argv[2])
  
