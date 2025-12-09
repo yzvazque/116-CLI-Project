@@ -210,6 +210,21 @@ def delete_base_model(mydb, cursor, bmid):
         mydb.rollback()
         print("Fail")
 
+def listInternetService(cursor, bmid):
+    cursor.execute(
+        """
+        SELECT I.sid, I.endpoints, I.provider
+        FROM InternetService I
+        JOIN ModelServices MS ON I.sid = MS.sid
+        WHERE MS.bmid = %s
+        ORDER BY I.provider ASC;
+        """,
+        (bmid,)
+    )
+    rows = cursor.fetchall()
+    for row in rows:
+        print(",".join(str(x) for x in row))
+
 def countCustomizedModel(bmodels, cursor):
     # Prepare placeholders for variable number of BMIDs
     placeholders = ", ".join(["%s"] * len(bmodels))
@@ -229,17 +244,19 @@ def countCustomizedModel(bmodels, cursor):
         print(",".join(str(x) for x in row))
         
 def findTopLongestDuration(cursor, client_uid, n: int):
-    cursor.execute(
-        f"SELECT c.cid, c.uid, c.label, c.content, u.duration"
-        f"FROM Configuration c, ModelConfigurations u"
-        f"WHERE c.uid = {client_uid} AND (SELECT u.duration"
-                                        f"FROM ModelConfigurations u"
-                                        f"ORDER BY u.duration DSC"
-                                        f"LIMIT {n};)")
-    
+    query = """
+        SELECT c.client_uid, c.cid, c.labels, c.content, MAX(mc.duration) AS duration
+        FROM Configuration c
+        JOIN ModelConfigurations mc ON c.cid = mc.cid
+        WHERE c.client_uid = %s
+        GROUP BY c.client_uid, c.cid, c.labels, c.content
+        ORDER BY duration DESC
+        LIMIT %s
+    """
+    cursor.execute(query, (client_uid, n))
     rows = cursor.fetchall()
     for row in rows:
-        print(row)
+        print(",".join(str(x) for x in row))
 
 def listBaseModelKeyWord(cursor, keyword):
     key = f"%{keyword}%"
@@ -294,6 +311,9 @@ def main():
     elif sys.argv[1] == "deleteBaseModel":
         bmid = int(sys.argv[2])
         delete_base_model(mydb, cursor, bmid)
+    elif sys.argv[1] == "listInternetService":
+        bmid = int(sys.argv[2])
+        listInternetService(cursor, bmid)
     elif sys.argv[1] == "countCustomizedModel":
         input_bmids = sys.argv[2:]
         unique_bmids = sorted({int(x) for x in input_bmids})
@@ -301,7 +321,7 @@ def main():
     elif sys.argv[1] == "topNDurationConfig":
         client_uid = int(sys.argv[2])
         n = int(sys.argv[3])
-        findTopLongestDuration(client_uid, n)
+        findTopLongestDuration(cursor, client_uid, n)
     elif(sys.argv[1]=="listBaseModelKeyWord"):
         listBaseModelKeyWord(cursor,sys.argv[2])
  
