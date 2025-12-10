@@ -278,7 +278,10 @@ def listBaseModelKeyWord(cursor, keyword):
         print(",".join(str(x) for x in row))
 
 def printNL2SQLResult():
-    placeholder = 0
+    with open('NL2SQL.csv', newline='') as csvfile:
+        data = csv.reader(csvfile)
+        for row in data:
+            print(",".join("Success" if x == True else ("Fail" if x == False else str(x)) for x in row))
 
 def main():
     mydb = mysql.connector.connect(
@@ -328,7 +331,6 @@ def main():
         listBaseModelKeyWord(cursor,sys.argv[2])
     elif(sys.argv[1] == "printNL2SQLresult"):
         printNL2SQLResult()
- 
 
 
     cursor.close()
