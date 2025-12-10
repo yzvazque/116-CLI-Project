@@ -277,6 +277,8 @@ def listBaseModelKeyWord(cursor, keyword):
     for row in rows:
         print(",".join(str(x) for x in row))
 
+def printNL2SQLResult():
+    placeholder = 0
 
 def main():
     mydb = mysql.connector.connect(
@@ -322,8 +324,10 @@ def main():
         client_uid = int(sys.argv[2])
         n = int(sys.argv[3])
         findTopLongestDuration(cursor, client_uid, n)
-    elif(sys.argv[1]=="listBaseModelKeyWord"):
+    elif(sys.argv[1] == "listBaseModelKeyWord"):
         listBaseModelKeyWord(cursor,sys.argv[2])
+    elif(sys.argv[1] == "printNL2SQLresult"):
+        printNL2SQLResult()
  
 
 

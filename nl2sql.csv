@@ -1,0 +1,4 @@
+NLQuery_id, NLQuery, LLM_model_name, prompt, LLM_returned_SQL_id, LLM_returned_SQL_query, SQL_correct, Error_name1, Error_name2, Error_name3
+1, "For each Internet Service(sid), find the most frequently used version among all Base Models that utilize it. If multiple versions have the same highest frequency, you may return any one of them.", 
+2, "Find all the Internet Service(sid) that are utilized by every Base Model built by the agent creator user_iuwrh.",
+3, "Find all customized models(mid) that do not appear in model configurations. ", 
