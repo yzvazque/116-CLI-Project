@@ -281,7 +281,7 @@ def printNL2SQLResult():
     with open('NL2SQL.csv', newline='') as csvfile:
         data = csv.reader(csvfile)
         for row in data:
-            print(",".join("Success" if x == True else ("Fail" if x == False else str(x)) for x in row))
+            print("{" + ",\n".join("Success" if x == "True" else ("Fail" if x == "False" else str(x)) for x in row) + "}")
 
 def main():
     mydb = mysql.connector.connect(
